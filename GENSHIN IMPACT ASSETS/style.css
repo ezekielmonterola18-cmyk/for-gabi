@@ -1,0 +1,381 @@
+/* --- 1. SETTINGS & VARIABLES --- */
+:root {
+    --hoyo-gold: #d3bc8e;
+    --hoyo-gold-bright: #ffcc33;
+    --hoyo-blue: #3f4554;
+    --hoyo-blue-light: #4e5569;
+    --hoyo-blue-dark: #2b303b;
+    --hoyo-cream: #ece5d8;
+    --glow: rgba(255, 204, 51, 0.4);
+}
+
+@font-face {
+    font-family: 'GenshinFont';
+    src: url('zh-cn.ttf'); 
+}
+
+/* --- 2. GLOBAL CURSOR LOGIC --- */
+html, body, div, p {
+    cursor: url('cursor.cur'), auto !important;
+}
+
+a, button, [onclick], .event-tile, #yes-btn, .close-btn {
+    cursor: url('genshin_link.cur'), pointer !important;
+}
+
+span, h1, h2, label {
+    cursor: url('cursor.cur'), text;
+}
+
+#loading-screen {
+    cursor: url('genshin_working.ani'), wait !important;
+}
+
+/* --- 3. BASE STYLES --- */
+body { 
+    background-color: #1a1a1a; 
+    color: white; 
+    font-family: 'Quicksand', sans-serif; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    height: 100vh; 
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.hidden { display: none !important; }
+
+h1, h2 {
+    font-family: 'GenshinFont', serif;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+/* --- 4. BACKGROUND VIDEO & BLUR --- */
+.bg-video {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    transform: translate(-50%, -50%);
+    z-index: -1;
+    object-fit: cover;
+    transition: filter 1.5s ease, brightness 1.5s ease;
+}
+
+.blurred {
+    filter: blur(8px) brightness(70%);
+}
+
+/* --- 5. COMPONENT STYLES --- */
+
+/* Main Event Wall Buttons (UPGRADED) */
+.event-grid, #event-wall .button-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    width: 90%;
+    max-width: 800px;
+}
+
+.event-grid button, #event-wall button, .event-tile {
+    position: relative;
+    background: linear-gradient(135deg, var(--hoyo-blue) 0%, var(--hoyo-blue-dark) 100%);
+    border: 2px solid var(--hoyo-gold); 
+    color: var(--hoyo-cream);
+    padding: 25px 40px;
+    border-radius: 4px;
+    font-family: 'GenshinFont', sans-serif;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    overflow: hidden; 
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 5px 15px rgba(0,0,0,0.3);
+}
+
+/* Diamond Icon ✦ */
+.event-grid button::before, #event-wall button::before {
+    content: '✦';
+    margin-right: 10px;
+    color: var(--hoyo-gold);
+    font-size: 0.9rem;
+}
+
+/* Shimmer Streak */
+.event-grid button::after, #event-wall button::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -60%;
+    width: 20%;
+    height: 200%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: rotate(30deg);
+    transition: all 0.6s;
+}
+
+.event-grid button:hover::after, #event-wall button:hover::after {
+    left: 120%;
+}
+
+.event-grid button:hover, #event-wall button:hover {
+    transform: translateY(-5px) scale(1.02);
+    border-color: var(--hoyo-gold-bright);
+    background: linear-gradient(135deg, var(--hoyo-blue-light) 0%, var(--hoyo-blue) 100%);
+    color: #fff;
+    box-shadow: 0 0 20px var(--glow);
+}
+
+.event-grid button:active, #event-wall button:active {
+    transform: scale(0.95);
+    background: #1a1e26;
+}
+
+/* Modals & Cards */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 2000;
+    
+    display: flex;
+    align-items: center;   /* Centers vertically */
+    justify-content: center; /* Centers horizontally */
+    padding: 20px;
+}
+.genshin-card {
+    background: var(--hoyo-cream);
+    color: var(--hoyo-blue);
+    /* Use 'vw' (view width) so it shrinks on smaller screens */
+    width: 90vw; 
+    max-width: 450px; /* It will never get bigger than this */
+    
+    /* Ensure it never exceeds the screen height */
+    max-height: 80vh; 
+    
+    margin: auto;
+    padding: 20px;
+    border-radius: 8px;
+    border: 3px solid var(--hoyo-gold);
+    position: relative;
+    
+    /* This makes the card itself scrollable if content is long */
+    display: flex;
+    flex-direction: column;
+}
+
+.card-content {
+    overflow-y: auto; /* Adds the scrollbar only inside the text area */
+    padding-right: 10px; /* Space for the scrollbar */
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem); /* Dynamically scales font size! */
+}
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none !important;
+    border: none !important;
+    font-size: 25px;
+    color: var(--hoyo-blue);
+    box-shadow: none !important;
+    padding: 5px !important;
+}
+/* Apply the 'Genshin Depth' to the first screen buttons */
+#valentine-screen button {
+    position: relative;
+    padding: 15px 40px;
+    font-size: 1.3rem;
+    font-family: 'GenshinFont', sans-serif;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    /* This adds the 3D 'pressed' look */
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.3), 0 4px 10px rgba(0,0,0,0.3);
+}
+
+/* The "Yes" Button (The "Confirm" color) */
+#yes-btn {
+    background: linear-gradient(135deg, #ff4d4d 0%, #cc0000 100%);
+    color: white;
+    border: 4px solid #ffcc33; /* Gold border makes it pop */
+}
+
+/* The "No" Button (The "Cancel" color) */
+#no-btn {
+    background: linear-gradient(135deg, #a1a1a1 0%, #757575 100%);
+    color: white;
+    border: 4px solid #d3bc8e;
+}
+
+/* Hover effects for the first screen */
+#valentine-screen button:hover {
+    transform: scale(1.1);
+    filter: brightness(1.2);
+    box-shadow: 0 0 15px var(--glow);
+}
+.button-wrapper {
+    display: flex;
+    justify-content: center; /* Centers them horizontally */
+    align-items: center;     /* Centers them vertically */
+    gap: 40px;               /* Space between the two buttons */
+    margin-top: 30px;
+    min-height: 100px;       /* Keeps the screen from jumping when 'No' moves */
+}
+
+/* Ensure the Yes button stays put */
+#yes-btn {
+    position: relative;
+    z-index: 10;
+}
+.slideshow-container {
+    width: 80%;
+    max-width: 600px;
+    height: 350px; /* You can increase this height now to show more of the photo */
+    margin: 20px auto;
+    border: 3px solid var(--hoyo-gold);
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+    background: #000;
+}
+#main-slideshow-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Use 'contain' if you want to see the whole photo, 'cover' if you want it to fill the box */
+    display: block;
+}
+#slideshow-caption {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    color: var(--hoyo-cream);
+    padding: 10px;
+    text-align: center;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 1rem;
+    border-top: 1px solid var(--hoyo-gold);
+}
+#event-wall {
+    display: flex;
+    flex-direction: column; /* Stack title, slideshow, and buttons vertically */
+    align-items: center;    /* Centers them horizontally */
+    justify-content: center;/* Centers them vertically if there is extra space */
+    text-align: center;     /* Centers the actual text inside the tags */
+    width: 100%;
+}
+
+#event-wall h1 {
+    width: 100%;
+    margin-top: 0;          /* Removes default browser spacing */
+    margin-bottom: 20px;    /* Adds clean space before the slideshow */
+    font-family: 'GenshinFont', serif;
+    color: var(--hoyo-gold);
+}
+h1 {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+#event-wall h1 {
+    position: relative;
+    padding-bottom: 10px;
+}
+
+#event-wall h1::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 25%; /* Starts 25% in */
+    width: 50%; /* Covers the middle 50% */
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--hoyo-gold), transparent);
+}
+.spotify-card {
+    max-width: 450px;
+    background: #1a1a1a; /* Spotify-ish Dark */
+    border: 2px solid #1DB954; /* Optional: Spotify Green border instead of Gold */
+    padding: 20px;
+}
+
+.spotify-container {
+    margin-top: 15px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+/* Ensure photos in the album fit perfectly */
+.album-content {
+    width: 100%;
+    height: 350px; /* Fixed height for the photo area */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #000; /* Black bars if photo is a different shape */
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+#album-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* This fits the whole photo inside without cutting */
+}
+
+/* Also for the main slideshow */
+#main-slideshow-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* This fills the whole box for a cleaner look */
+    transition: opacity 1s ease-in-out;
+}
+.album-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding: 0 10px;
+}
+
+.album-controls button {
+    background: rgba(236, 229, 216, 0.1); /* Very faint cream */
+    color: #ece5d8;
+    border: 2px solid #d3bc8e; /* The signature Gold */
+    padding: 10px 20px;
+    font-family: 'GenshinFont', serif; /* Use your game font here */
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 4px; /* Slight roundness */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* The Hover Effect */
+.album-controls button:hover {
+    background: #d3bc8e; /* Fills with gold */
+    color: #3f4554;      /* Text turns dark blue/grey */
+    box-shadow: 0 0 15px rgba(211, 188, 142, 0.6);
+    transform: translateY(-2px);
+}
+
+/* Active/Click Effect */
+.album-controls button:active {
+    transform: translateY(0);
+}

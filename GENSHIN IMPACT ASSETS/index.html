@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>For You</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <video autoplay muted loop playsinline id="bg-video" class="bg-video">
+        <source src="proposal-bg.mp4" type="video/mp4">
+    </video>
+
+    <div id="valentine-screen">
+        <h1>Will you be my Valentine?</h1>
+        <button id="yes-btn" onclick="startLoading()">Yes</button>
+        <button id="no-btn" onmouseover="moveButton()">No</button>
+    </div>
+
+    <div id="loading-screen" class="hidden">
+        <video id="loading-video" muted playsinline>
+            <source src="loading.mp4" type="video/mp4">
+        </video>
+        <p>Loading data from Teyvat...</p>
+    </div>
+
+    <div id="event-wall" class="hidden">
+    <h1>Special Event: Valentine's Journey</h1>
+
+    <div class="slideshow-container">
+    <img id="main-slideshow-img" src="photo (1).jpg" alt="Memory">
+</div>
+
+    <div class="button-wrapper">
+        <button class="event-tile" onclick="openLetter()">Open Letter</button>
+        <button class="event-tile" onclick="openAlbum()">Full Album</button>
+        <button class="event-tile" onclick="openSpotify()">Playlist</button>
+    </div>
+</div>
+
+    <div id="letter-modal" class="modal-overlay hidden">
+        <div class="genshin-card">
+            <button class="close-btn" onclick="closeLetter()">×</button>
+            <div class="card-header">
+                <span class="star">✦</span>
+                <h2>A Special Message</h2>
+                <span class="star">✦</span>
+            </div>
+            <div class="card-content">
+               <p class="letter-greeting">To my baby, Gabi</p>
+            
+            <p>
+               It’s funny how you tried making a website for me while I was also trying to make one for you — I promise I did not copy your idea, it’s just that I don’t really have the means to buy you any flowers and I can’t exactly give you handmade flowers considering our arrangement, still, I wanted to do something for you because my heart demands I do so. I know this isn’t really the best website out there, but know that I made this with love. I tried making it Genshin themed and it kinda was when I started, but yeah somehow, somewhere, it stopped being Genshin themed and started being its own hybrid but yes.
+            </p>
+<p>
+               It’s been a while since I last saw you and I know how much our photos mean to you, so I compiled some of my favorite photos of us just so you know which ones are my favorite. I really miss you my Gabi — these photos remind me of when we were together and I can’t help but cry over our sweetness. I also made sure to make you a Valentine’s Special playlist because I love you, and I wanted to show you that I do pay attention and I remember the little details, but to be fair, these details aren’t so little, at least for me. I didn’t want to exhaust all the songs that I know you listen to for future references so I stuck with 30 specially handpicked songs.
+            </p>
+<p>
+               In any case, I tried my best baby, and I hope this makes up for me not getting you anything this Valentine’s. I love you a lot my baby, and I always will, I just know we’ll get married and have kids while we live in our not too big but also not too small house by the river with a willow tree in our backyard. In time, we’ll get to that point, and I would be the happiest.
+            </p>
+<p>
+               There are things I wish to tell you but cannot because of how much you mean to me, I endure and I live for you, all for you. We both haven’t been exactly well, and most of why that is originates from me; for that I am sorry. I really wish I could have gone home and visited you, that would have really helped me because it is and always will be easier for me to communicate with you if you’re in front of me, with me. Nonetheless, I will work with what I have, because I know that I want you with me forever — you said you’d work on proving to me that you want to be with me, then I will do the same. 
+            </p>
+	
+            <p>
+                Happy Valentines my sweet baby, lovie, wifey, langga, and bunny; Gabrielle Athalia Lagas!!!
+            </p>
+
+            <p class="letter-signature">
+                Yours truly,<br>
+                <strong>🐻</strong>
+            </p>
+        </div>
+    </div>
+</div>
+
+    <div id="album-modal" class="modal-overlay hidden">
+        <div class="genshin-card album-card">
+            <button class="close-btn" onclick="closeAlbum()">×</button>
+            <div class="card-header"><h2>Traveler's Memories</h2></div>
+            <div class="album-content">
+                <img id="album-img" src="photo1.jpg" alt="Memory">
+            </div>
+            <div class="album-controls">
+    <button onclick="changePhoto(-1)">
+        <span class="icon">✦</span> Prev
+    </button>
+    
+    <span id="photo-counter" style="color: #d3bc8e; font-weight: bold;">1 / 24</span>
+
+    <button onclick="changePhoto(1)">
+        Next <span class="icon">✦</span>
+    </button>
+</div>
+</div>
+</div>
+
+    <div id="spotify-modal" class="modal-overlay hidden">
+        <div class="genshin-card spotify-card">
+            <button class="close-btn" onclick="closeSpotify()">×</button>
+            <div class="card-header"><h2>Forest Watcher's Melodies</h2></div>
+            <div id="spotify-player" class="spotify-container"></div>
+        </div>
+    </div>
+
+    <audio id="main-bgm" loop>
+        <source src="bgm.m4a" type="audio/mpeg">
+    </audio>
+
+<script>
+    // 1. Generate 24 photos automatically
+    const memories = [];
+    for (let i = 1; i <= 24; i++) {
+        memories.push({ 
+            src: `photo (${i}).jpg`, 
+        });
+    }
+
+    let currentIndex = 0; // For Manual Album
+    let slideIndex = 0;   // For Auto Slideshow
+    let slideshowInterval;
+
+    function startLoading() {
+        const loadingVideo = document.getElementById('loading-video');
+        const bgVideo = document.getElementById('bg-video');
+
+        document.getElementById('valentine-screen').classList.add('hidden');
+        document.getElementById('loading-screen').classList.remove('hidden');
+        loadingVideo.play();
+
+        loadingVideo.onended = function() {
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('event-wall').classList.remove('hidden');
+            bgVideo.classList.add('blurred');
+
+            const music = document.getElementById('main-bgm');
+            if (music) music.play();
+
+            // FIX: Start the slideshow timer here!
+            slideshowInterval = setInterval(startSlideshow, 5000);
+        };
+    }
+
+    function startSlideshow() {
+        const slideImg = document.getElementById('main-slideshow-img');
+        if (!slideImg) return;
+
+        slideImg.style.opacity = 0;
+        
+        setTimeout(() => {
+            slideIndex = (slideIndex + 1) % memories.length;
+            slideImg.src = memories[slideIndex].src;
+            slideImg.style.opacity = 1;
+        }, 1000);
+    }
+
+    // Manual Album Logic
+    function openAlbum() { 
+        document.getElementById('album-modal').classList.remove('hidden');
+        updateAlbum();
+    }
+    
+    function updateAlbum() {
+    const img = document.getElementById('album-img');
+    img.src = memories[currentIndex].src;
+    
+    // Updates the "1 / 24" text
+    const counter = document.getElementById('photo-counter');
+    if (counter) {
+        counter.innerText = `${currentIndex + 1} / ${memories.length}`;
+    }
+
+}
+
+    function changePhoto(dir) {
+        currentIndex = (currentIndex + dir + memories.length) % memories.length;
+        updateAlbum();
+    }
+
+    function closeAlbum() { document.getElementById('album-modal').classList.add('hidden'); }
+
+    // --- Other Controls ---
+    function openLetter() { document.getElementById('letter-modal').classList.remove('hidden'); }
+    function closeLetter() { document.getElementById('letter-modal').classList.add('hidden'); }
+
+    function openSpotify() {
+        const music = document.getElementById('main-bgm');
+        if (music) fadeOutMusic(music);
+        document.getElementById('spotify-player').innerHTML = `<iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/4fxreCRKfDKB90ImNHaqrf?utm_source=generator&theme=02" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+        document.getElementById('spotify-modal').classList.remove('hidden');
+    }
+
+    function closeSpotify() {
+        const music = document.getElementById('main-bgm');
+        document.getElementById('spotify-modal').classList.add('hidden');
+        document.getElementById('spotify-player').innerHTML = ""; 
+        if (music) { music.volume = 1; music.play(); }
+    }
+
+    function fadeOutMusic(audioElement) {
+        let volume = audioElement.volume;
+        const fadeInterval = setInterval(() => {
+            if (volume > 0.1) { volume -= 0.1; audioElement.volume = volume; }
+            else { audioElement.pause(); clearInterval(fadeInterval); }
+        }, 50);
+    }
+
+    function moveButton() {
+        const btn = document.getElementById('no-btn');
+        const x = Math.random() * (window.innerWidth - btn.offsetWidth);
+        const y = Math.random() * (window.innerHeight - btn.offsetHeight);
+        btn.style.position = 'absolute';
+        btn.style.left = x + 'px';
+        btn.style.top = y + 'px';
+    }
+
+    const clickSound = new Audio('click.mp3');
+    document.querySelectorAll('button').forEach(button => {
+        button.addEventListener('click', () => { clickSound.play().catch(()=>{}); });
+    });
+</script>
+</body>
+</html>
